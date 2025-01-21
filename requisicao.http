@@ -1,0 +1,19 @@
+GET http://localhost:3000/clientes/1
+
+###
+GET http://localhost:3000/s3
+
+###
+POST http://localhost:3000/clientes
+Content-Type: application/json
+
+{
+  "nomeCompleto": "João da Silva",
+  "dataNascimento": "1990-05-20",
+  "ativo": true,
+  "enderecos": ["Rua das Flores, 123", "Avenida Central, 456"],
+  "contatos": [
+    { "email": "joao@example.com", "telefone": "11999999999", "principal": true },
+    { "email": "joao.silva@example.com", "telefone": "11888888888", "principal": false }
+  ]
+}
