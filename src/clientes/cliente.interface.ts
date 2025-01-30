@@ -1,6 +1,5 @@
-// cliente.interface.ts
 export interface Cliente {
-  id?: string; // Torna o id opcional
+  id?: string;
   nomeCompleto: string;
   dataNascimento: string;
   ativo: boolean;
