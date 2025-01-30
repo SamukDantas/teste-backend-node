@@ -5,6 +5,8 @@ import {
   GetItemCommand,
   DeleteItemCommand,
   ScanCommand,
+  UpdateItemCommand,
+  ReturnValue,
 } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import { Cliente } from './cliente.interface';
@@ -95,9 +97,34 @@ export class ClienteService {
     }
 
     Object.assign(cliente, updates);
-    cliente.id = id;
 
-    return cliente;
+    const params = {
+      TableName: TABLE_NAME,
+      Key: {
+        id: { S: id },
+      },
+      UpdateExpression:
+        'SET nomeCompleto = :nomeCompleto, dataNascimento = :dataNascimento, ativo = :ativo, enderecos = :enderecos, contatos = :contatos',
+      ExpressionAttributeValues: {
+        ':nomeCompleto': { S: cliente.nomeCompleto },
+        ':dataNascimento': { S: cliente.dataNascimento },
+        ':ativo': { BOOL: cliente.ativo },
+        ':enderecos': { SS: cliente.enderecos },
+        ':contatos': { S: JSON.stringify(cliente.contatos) },
+      },
+      ReturnValues: ReturnValue.ALL_NEW,
+    };
+
+    const resultado = await dynamoCliente.send(new UpdateItemCommand(params));
+
+    return {
+      id: resultado.Attributes.id.S,
+      nomeCompleto: resultado.Attributes.nomeCompleto.S,
+      dataNascimento: resultado.Attributes.dataNascimento.S,
+      ativo: resultado.Attributes.ativo.BOOL,
+      enderecos: resultado.Attributes.enderecos.SS,
+      contatos: JSON.parse(resultado.Attributes.contatos.S || '[]'),
+    };
   }
 
   async deletarCliente(id: string): Promise<void> {
