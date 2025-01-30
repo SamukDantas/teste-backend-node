@@ -63,4 +63,47 @@ describe('ClienteController', () => {
     const response = await controller.listarClientes();
     expect(response).toEqual(clientes);
   });
+
+  it('deve buscar um cliente por ID', async () => {
+    const cliente = {
+      id: '1',
+      nomeCompleto: 'João Silva',
+      dataNascimento: '1990-01-01',
+      ativo: true,
+      enderecos: ['Rua A'],
+      contatos: [],
+    };
+
+    jest.spyOn(service, 'buscarCliente').mockResolvedValue(cliente);
+
+    const response = await controller.buscarCliente('1');
+    expect(response).toEqual(cliente);
+  });
+
+  it('deve atualizar um cliente', async () => {
+    const clienteAtualizado = {
+      nomeCompleto: 'João Silva',
+      dataNascimento: '1990-01-01',
+      ativo: false,
+      enderecos: ['Rua B'],
+      contatos: [],
+    };
+
+    const clienteRetornado = {
+      id: '1',
+      ...clienteAtualizado,
+    };
+
+    jest.spyOn(service, 'atualizarCliente').mockResolvedValue(clienteRetornado);
+
+    const response = await controller.atualizarCliente('1', clienteAtualizado);
+    expect(response).toEqual(clienteRetornado);
+  });
+
+  it('deve deletar um cliente', async () => {
+    jest.spyOn(service, 'deletarCliente').mockResolvedValue(undefined);
+
+    const response = await controller.deletarCliente('1');
+    expect(response).toBe(true);
+  });
 });

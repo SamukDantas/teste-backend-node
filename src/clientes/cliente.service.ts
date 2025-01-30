@@ -5,7 +5,6 @@ import {
   GetItemCommand,
   DeleteItemCommand,
   ScanCommand,
-  UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import { Cliente } from './cliente.interface';
@@ -88,50 +87,17 @@ export class ClienteService {
 
   async atualizarCliente(
     id: string,
-    updates: Partial<Omit<Cliente, 'id'>>,
-  ): Promise<void> {
-    const updateExpressions = [];
-    const expressionAttributeValues: any = {};
-
-    if (updates.nomeCompleto) {
-      updateExpressions.push('nomeCompleto = :nomeCompleto');
-      expressionAttributeValues[':nomeCompleto'] = { S: updates.nomeCompleto };
+    updates: Partial<Cliente>,
+  ): Promise<Cliente> {
+    const cliente = await this.buscarCliente(id);
+    if (!cliente) {
+      throw new Error('Cliente não encontrado');
     }
 
-    if (updates.dataNascimento) {
-      updateExpressions.push('dataNascimento = :dataNascimento');
-      expressionAttributeValues[':dataNascimento'] = {
-        S: updates.dataNascimento,
-      };
-    }
+    Object.assign(cliente, updates);
+    cliente.id = id;
 
-    if (updates.ativo !== undefined) {
-      updateExpressions.push('ativo = :ativo');
-      expressionAttributeValues[':ativo'] = { BOOL: updates.ativo };
-    }
-
-    if (updates.enderecos) {
-      updateExpressions.push('enderecos = :enderecos');
-      expressionAttributeValues[':enderecos'] = { SS: updates.enderecos };
-    }
-
-    if (updates.contatos) {
-      updateExpressions.push('contatos = :contatos');
-      expressionAttributeValues[':contatos'] = {
-        S: JSON.stringify(updates.contatos),
-      };
-    }
-
-    const params = {
-      TableName: TABLE_NAME,
-      Key: {
-        id: { S: id },
-      },
-      UpdateExpression: `SET ${updateExpressions.join(', ')}`,
-      ExpressionAttributeValues: expressionAttributeValues,
-    };
-
-    await dynamoCliente.send(new UpdateItemCommand(params));
+    return cliente;
   }
 
   async deletarCliente(id: string): Promise<void> {

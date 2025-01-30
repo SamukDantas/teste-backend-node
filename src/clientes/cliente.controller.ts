@@ -38,15 +38,15 @@ export class ClienteController {
   @Put(':id')
   async atualizarCliente(
     @Param('id') id: string,
-    @Body() updates: Partial<Omit<Cliente, 'id'>>,
+    @Body() updates: Partial<Cliente>,
   ) {
-    await this.clienteService.atualizarCliente(id, updates);
-    return { message: 'Cliente atualizado com sucesso!' };
+    const cliente = await this.clienteService.atualizarCliente(id, updates);
+    return cliente;
   }
 
   @Delete(':id')
   async deletarCliente(@Param('id') id: string) {
     await this.clienteService.deletarCliente(id);
-    return { message: 'Cliente deletado com sucesso!' };
+    return true;
   }
 }
